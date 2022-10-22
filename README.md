@@ -1,5 +1,5 @@
 # bbrplus-6.x_Mainline
-Linux BBRplus Kernel 6.x Non-LTS (Mainline) ported from BBRplus 4.14  
+Linux BBRplus Kernel 6.x non-LTS (Mainline) ported from BBRplus 4.14  
 (note that it does NOT based on 6.x version of BBR, instead just simple ported the 4.14 version of BBRplus)
 <br/>
 <br/>

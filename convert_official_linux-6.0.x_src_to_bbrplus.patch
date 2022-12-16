@@ -37,7 +37,7 @@ diff -ruaN a/include/net/tcp.h b/include/net/tcp.h
 diff -ruaN a/net/ipv4/Kconfig b/net/ipv4/Kconfig
 --- a/net/ipv4/Kconfig	2022-10-15 14:02:59.000000000 +0800
 +++ b/net/ipv4/Kconfig	2022-10-19 11:55:45.078906246 +0800
-@@ -485,7 +485,7 @@
+@@ -495,7 +495,7 @@
  
  config TCP_CONG_CUBIC
  	tristate "CUBIC TCP"
@@ -46,7 +46,7 @@ diff -ruaN a/net/ipv4/Kconfig b/net/ipv4/Kconfig
  	help
  	  This is version 2.0 of BIC-TCP which uses a cubic growth function
  	  among other techniques.
-@@ -668,9 +668,18 @@
+@@ -678,9 +678,18 @@
  	  AQM schemes that do not provide a delay signal. It requires the fq
  	  ("Fair Queue") pacing packet scheduler.
  
@@ -66,7 +66,7 @@ diff -ruaN a/net/ipv4/Kconfig b/net/ipv4/Kconfig
  	help
  	  Select the TCP congestion control that will be used by default
  	  for all connections.
-@@ -705,6 +714,9 @@
+@@ -715,6 +724,9 @@
  	config DEFAULT_BBR
  		bool "BBR" if TCP_CONG_BBR=y
  
@@ -76,7 +76,7 @@ diff -ruaN a/net/ipv4/Kconfig b/net/ipv4/Kconfig
  	config DEFAULT_RENO
  		bool "Reno"
  endchoice
-@@ -729,7 +741,8 @@
+@@ -739,7 +751,8 @@
  	default "dctcp" if DEFAULT_DCTCP
  	default "cdg" if DEFAULT_CDG
  	default "bbr" if DEFAULT_BBR

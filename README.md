@@ -11,9 +11,9 @@ https://github.com/cx9208/bbrplus
 <br/>
 <br/> 
 
-## some improvements as Oct-2022
+## some improvements as Aug-2023
 
-###  i)   merged official tcp_bbr patches between 2018-2022 into bbrplus  
+###  i)   merged official tcp_bbr patches between 2018-2023 into bbrplus  
 ###  ii)  keep official tcp_bbr module, so may use either  
 ```sh
 net.ipv4.tcp_congestion_control = bbrplus
@@ -36,33 +36,33 @@ in the `/etc/sysctl.conf` file. &nbsp;&nbsp; ( `fq` is the only recommended pack
 <br/>
 
 ### 1) get convert patch on this repository, use git or direct download
-        (e.g., convert_official_linux-6.0.x_src_to_bbrplus.patch)
+        (e.g., convert_official_linux-6.4.x_src_to_bbrplus.patch)
 
 <br/>
 <br/>
 
 ### 2) download officaial linux kernel
-        say 6.0.3       
-            wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.0.3.tar.xz
+        say 6.4.12       
+            wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.12.tar.xz
 
 <br/>
 <br/>
 
 ### 3) extract the tarball & cd extracted directory
-        tar xvf linux-6.0.3.tar.xz && cd linux-6.0.3
+        tar xvf linux-6.4.12.tar.xz && cd linux-6.4.12
 
 <br/>
 <br/>
 
 ### 4) copy convert patch to extracted kernel directory
         something like
-            cp ../convert_official_linux-6.0.x_src_to_bbrplus.patch .
+            cp ../convert_official_linux-6.4.x_src_to_bbrplus.patch .
 
 <br/>
 <br/>
 
 ### 5) do the patch job
-        patch -p1 < convert_official_linux-6.0.x_src_to_bbrplus.patch
+        patch -p1 < convert_official_linux-6.4.x_src_to_bbrplus.patch
 
 <br/>
 <br/>

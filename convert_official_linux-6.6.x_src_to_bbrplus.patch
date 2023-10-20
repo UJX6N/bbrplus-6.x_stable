@@ -1,6 +1,6 @@
 diff -ruaN a/include/net/inet_connection_sock.h b/include/net/inet_connection_sock.h
---- a/include/net/inet_connection_sock.h	2023-08-20 21:02:52.000000000 +0800
-+++ b/include/net/inet_connection_sock.h	2023-08-24 06:36:54.486056520 +0800
+--- a/include/net/inet_connection_sock.h	2023-10-16 04:34:39.000000000 +0800
++++ b/include/net/inet_connection_sock.h	2023-10-20 12:10:56.743517229 +0800
 @@ -135,8 +135,8 @@
  	u32			  icsk_probes_tstamp;
  	u32			  icsk_user_timeout;
@@ -13,9 +13,9 @@ diff -ruaN a/include/net/inet_connection_sock.h b/include/net/inet_connection_so
  
  #define ICSK_TIME_RETRANS	1	/* Retransmit timer */
 diff -ruaN a/include/net/tcp.h b/include/net/tcp.h
---- a/include/net/tcp.h	2023-08-20 21:02:52.000000000 +0800
-+++ b/include/net/tcp.h	2023-08-24 06:36:54.486056520 +0800
-@@ -587,6 +587,8 @@
+--- a/include/net/tcp.h	2023-10-16 04:34:39.000000000 +0800
++++ b/include/net/tcp.h	2023-10-20 12:10:56.743517229 +0800
+@@ -585,6 +585,8 @@
  #endif
  /* tcp_output.c */
  
@@ -24,7 +24,7 @@ diff -ruaN a/include/net/tcp.h b/include/net/tcp.h
  void tcp_skb_entail(struct sock *sk, struct sk_buff *skb);
  void tcp_mark_push(struct tcp_sock *tp, struct sk_buff *skb);
  void __tcp_push_pending_frames(struct sock *sk, unsigned int cur_mss,
-@@ -1084,6 +1086,9 @@
+@@ -1080,6 +1082,9 @@
  	/* override sysctl_tcp_min_tso_segs */
  	u32 (*min_tso_segs)(struct sock *sk);
  
@@ -35,8 +35,8 @@ diff -ruaN a/include/net/tcp.h b/include/net/tcp.h
  	 * after all the ca_state processing. (optional)
  	 */
 diff -ruaN a/net/ipv4/Kconfig b/net/ipv4/Kconfig
---- a/net/ipv4/Kconfig	2023-08-20 21:02:52.000000000 +0800
-+++ b/net/ipv4/Kconfig	2023-08-24 06:36:54.486056520 +0800
+--- a/net/ipv4/Kconfig	2023-10-16 04:34:39.000000000 +0800
++++ b/net/ipv4/Kconfig	2023-10-20 12:10:56.743517229 +0800
 @@ -495,7 +495,7 @@
  
  config TCP_CONG_CUBIC
@@ -87,8 +87,8 @@ diff -ruaN a/net/ipv4/Kconfig b/net/ipv4/Kconfig
  config TCP_MD5SIG
  	bool "TCP: MD5 Signature Option support (RFC2385)"
 diff -ruaN a/net/ipv4/Makefile b/net/ipv4/Makefile
---- a/net/ipv4/Makefile	2023-08-20 21:02:52.000000000 +0800
-+++ b/net/ipv4/Makefile	2023-08-24 06:36:54.486056520 +0800
+--- a/net/ipv4/Makefile	2023-10-16 04:34:39.000000000 +0800
++++ b/net/ipv4/Makefile	2023-10-20 12:10:56.743517229 +0800
 @@ -47,6 +47,7 @@
  obj-$(CONFIG_INET_UDP_DIAG) += udp_diag.o
  obj-$(CONFIG_INET_RAW_DIAG) += raw_diag.o
@@ -99,7 +99,7 @@ diff -ruaN a/net/ipv4/Makefile b/net/ipv4/Makefile
  obj-$(CONFIG_TCP_CONG_CUBIC) += tcp_cubic.o
 diff -ruaN a/net/ipv4/tcp_bbrplus.c b/net/ipv4/tcp_bbrplus.c
 --- a/net/ipv4/tcp_bbrplus.c	1970-01-01 08:00:00.000000000 +0800
-+++ b/net/ipv4/tcp_bbrplus.c	2023-08-24 06:36:54.486056520 +0800
++++ b/net/ipv4/tcp_bbrplus.c	2023-10-20 12:10:56.743517229 +0800
 @@ -0,0 +1,1214 @@
 +/* Bottleneck Bandwidth and RTT (BBR) congestion control
 + *
@@ -1316,9 +1316,9 @@ diff -ruaN a/net/ipv4/tcp_bbrplus.c b/net/ipv4/tcp_bbrplus.c
 +MODULE_LICENSE("Dual BSD/GPL");
 +MODULE_DESCRIPTION("TCP BBR (Bottleneck Bandwidth and RTT)");
 diff -ruaN a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
---- a/net/ipv4/tcp_output.c	2023-08-20 21:02:52.000000000 +0800
-+++ b/net/ipv4/tcp_output.c	2023-08-24 06:36:54.486056520 +0800
-@@ -1958,7 +1958,7 @@
+--- a/net/ipv4/tcp_output.c	2023-10-16 04:34:39.000000000 +0800
++++ b/net/ipv4/tcp_output.c	2023-10-20 12:10:56.743517229 +0800
+@@ -1973,7 +1973,7 @@
   * for every 2^9 usec (aka 512 us) of RTT, so that the RTT-based allowance
   * is below 1500 bytes after 6 * ~500 usec = 3ms.
   */
@@ -1327,7 +1327,7 @@ diff -ruaN a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
  			    int min_tso_segs)
  {
  	unsigned long bytes;
-@@ -1974,6 +1974,7 @@
+@@ -1989,6 +1989,7 @@
  
  	return max_t(u32, bytes / mss_now, min_tso_segs);
  }

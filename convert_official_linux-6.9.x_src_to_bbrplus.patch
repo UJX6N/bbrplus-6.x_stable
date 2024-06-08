@@ -440,7 +440,7 @@ diff -ruaN a/net/ipv4/tcp_bbrplus.c b/net/ipv4/tcp_bbrplus.c
 +    u64 rate = bw;
 +
 +    rate = bbr_rate_bytes_per_sec(sk, rate, gain);
-+    rate = min_t(u64, rate, sk->sk_max_pacing_rate);
++    rate = min_t(u64, rate, READ_ONCE(sk->sk_max_pacing_rate));
 +    return rate;
 +}
 +
@@ -460,7 +460,7 @@ diff -ruaN a/net/ipv4/tcp_bbrplus.c b/net/ipv4/tcp_bbrplus.c
 +    }
 +    bw = (u64)tcp_snd_cwnd(tp) * BW_UNIT;
 +    do_div(bw, rtt_us);
-+    sk->sk_pacing_rate = bbr_bw_to_pacing_rate(sk, bw, bbr_high_gain);
++    WRITE_ONCE(sk->sk_pacing_rate, bbr_bw_to_pacing_rate(sk, bw, bbr_high_gain));
 +}
 +
 +/* Pace using current bw estimate and a gain factor. In order to help drive the
@@ -478,8 +478,14 @@ diff -ruaN a/net/ipv4/tcp_bbrplus.c b/net/ipv4/tcp_bbrplus.c
 +
 +    if (unlikely(!bbr->has_seen_rtt && tp->srtt_us))
 +        bbr_init_pacing_rate_from_rtt(sk);
-+    if (bbr_full_bw_reached(sk) || rate > sk->sk_pacing_rate)
-+        sk->sk_pacing_rate = rate;
++    if (bbr_full_bw_reached(sk) || rate > READ_ONCE(sk->sk_pacing_rate))
++        WRITE_ONCE(sk->sk_pacing_rate, rate);
++}
++
++/* override sysctl_tcp_min_tso_segs */
++__bpf_kfunc static u32 bbr_min_tso_segs(struct sock *sk)
++{
++        return READ_ONCE(sk->sk_pacing_rate) < (bbr_min_tso_rate >> 3) ? 1 : 2;
 +}
 +
 +/* Return count of segments we want in the skbs we send, or 0 for default. */
@@ -496,7 +502,7 @@ diff -ruaN a/net/ipv4/tcp_bbrplus.c b/net/ipv4/tcp_bbrplus.c
 +    struct bbr *bbr = inet_csk_ca(sk);
 +    u32 min_segs;
 +
-+    min_segs = sk->sk_pacing_rate < (bbr_min_tso_rate >> 3) ? 1 : 2;
++    min_segs = READ_ONCE(sk->sk_pacing_rate) < (bbr_min_tso_rate >> 3) ? 1 : 2;
 +    bbr->tso_segs_goal = min(tcp_tso_autosize(sk, tp->mss_cache, min_segs),
 +                 0x7FU);
 +}
@@ -1270,7 +1276,7 @@ diff -ruaN a/net/ipv4/tcp_bbrplus.c b/net/ipv4/tcp_bbrplus.c
 +    .set_state  = bbr_set_state,
 +};
 +
-+BTF_SET8_START(tcp_bbr_check_kfunc_ids)
++BTF_KFUNCS_START(tcp_bbr_check_kfunc_ids)
 +#ifdef CONFIG_X86
 +#ifdef CONFIG_DYNAMIC_FTRACE
 +BTF_ID_FLAGS(func, bbr_init)
@@ -1279,10 +1285,11 @@ diff -ruaN a/net/ipv4/tcp_bbrplus.c b/net/ipv4/tcp_bbrplus.c
 +BTF_ID_FLAGS(func, bbr_undo_cwnd)
 +BTF_ID_FLAGS(func, bbr_cwnd_event)
 +BTF_ID_FLAGS(func, bbr_ssthresh)
++BTF_ID_FLAGS(func, bbr_min_tso_segs)
 +BTF_ID_FLAGS(func, bbr_set_state)
 +#endif
 +#endif
-+BTF_SET8_END(tcp_bbr_check_kfunc_ids)
++BTF_KFUNCS_END(tcp_bbr_check_kfunc_ids)
 +
 +static const struct btf_kfunc_id_set tcp_bbr_kfunc_set = {
 +    .owner = THIS_MODULE,
@@ -1295,10 +1302,10 @@ diff -ruaN a/net/ipv4/tcp_bbrplus.c b/net/ipv4/tcp_bbrplus.c
 +
 +    BUILD_BUG_ON(sizeof(struct bbr) > ICSK_CA_PRIV_SIZE);
 +
-+	ret = register_btf_kfunc_id_set(BPF_PROG_TYPE_STRUCT_OPS, &tcp_bbr_kfunc_set);
-+	if (ret < 0)
++    ret = register_btf_kfunc_id_set(BPF_PROG_TYPE_STRUCT_OPS, &tcp_bbr_kfunc_set);
++    if (ret < 0)
 +        return ret;
-+	return tcp_register_congestion_control(&tcp_bbr_cong_ops);
++    return tcp_register_congestion_control(&tcp_bbr_cong_ops);
 +}
 +
 +static void __exit bbr_unregister(void)
